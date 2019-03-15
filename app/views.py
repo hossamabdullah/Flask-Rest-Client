@@ -4,12 +4,14 @@ from flask import request, jsonify
 from flask_restful import Api, Resource, reqparse
 from werkzeug.datastructures import FileStorage
 import os
+import requests
+
 
 
 api = Api(app)
 
-from models import Pet
-from Utils import Util
+from app.models import Pet
+from app.Utils import Util
 
 class PetInsertionAPI(Resource):
     def __init__(self):
@@ -20,6 +22,16 @@ class PetInsertionAPI(Resource):
         self.parser.add_argument('photoUrls', location='json', action='append', required=True, help="photoUrls is required")
         self.parser.add_argument('tags', type=dict, location='json', action='append', required=True, help="tags is required and it has to be of type dict")
         self.parser.add_argument('status', location='json', required=True, help="status is required")
+
+    def get(self):
+        args = request.args.get("message")
+        
+        data = {'user_id': args}
+        res = requests.post('https://goachievenow.com/admin/api/User/searchuserdetail', data)
+        dictFromServer = res.json()
+
+
+        return dictFromServer['response']['tasks'], 200
 
     def post(self):
         args = self.parser.parse_args()
